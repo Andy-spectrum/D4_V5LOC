@@ -1,0 +1,198 @@
+# D4_V5LOC Project .gitignore
+
+# ============================================
+# NEUROIMAGING DATA FILES (LARGE FILES)
+# ============================================
+
+# fMRI data files (NIfTI format)
+*.nii
+*.nii.gz
+*.img
+*.hdr
+
+# DICOM files
+*.dcm
+*.IMA
+
+# SPM intermediate files
+*.mat
+SPM.mat
+!**/scripts/**/*.mat  # Allow .mat files in scripts directories
+
+# ============================================
+# EEG DATA FILES (LARGE FILES)
+# ============================================
+
+# EEGLAB format
+*.fdt
+*.dat
+
+# BrainVision format
+*.eeg
+
+# BioSemi format
+*.bdf
+
+# MNE/Neuromag format
+*.fif
+*-raw.fif
+*_epo.fif
+*_ica.fif
+*-ave.fif
+
+# European Data Format
+*.edf
+
+# FieldTrip data
+*_data.mat
+
+# ============================================
+# ANALYSIS RESULTS (LARGE IMAGE FILES)
+# ============================================
+
+# Large result images
+/fmri/results/**/*.nii
+/fmri/results/**/*.nii.gz
+/eeg/results/**/*.fif
+
+# But keep small summary files
+!/fmri/results/**/*.png
+!/fmri/results/**/*.jpg
+!/fmri/results/**/*.pdf
+!/eeg/results/**/*.png
+!/eeg/results/**/*.jpg
+!/eeg/results/**/*.pdf
+
+# ============================================
+# MATLAB & PYTHON
+# ============================================
+
+# MATLAB autosave and temp files
+*.asv
+*.m~
+*.autosave
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb_checkpoints
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+conda_env/
+
+# ============================================
+# SYSTEM FILES
+# ============================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
+
+# ============================================
+# IDE & EDITOR FILES
+# ============================================
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# PyCharm
+.idea/
+
+# MATLAB
+*.mlx.autosave
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+.\#*
+
+# ============================================
+# TEMPORARY & LOG FILES
+# ============================================
+
+# Logs
+*.log
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# ============================================
+# DATA DIRECTORIES (with exceptions)
+# ============================================
+
+# Ignore data directories but keep structure
+/fmri/data/*
+!/fmri/data/README_data.md
+!/fmri/data/**/*.tsv
+!/fmri/data/**/*.json
+!/fmri/data/**/*.txt
+
+/eeg/data/*
+!/eeg/data/README_data.md
+!/eeg/data/**/*.tsv
+!/eeg/data/**/*.json
+!/eeg/data/**/*.txt
+!/eeg/data/**/*.set  # Allow small EEGLAB .set files (metadata)
+
+# ============================================
+# COMPRESSED FILES (if large)
+# ============================================
+
+# Archives of data (usually large)
+# *.zip
+# *.tar.gz
+# *.rar
+
+# ============================================
+# MISCELLANEOUS
+# ============================================
+
+# Node modules (if using any JS tools)
+node_modules/
+
+# R (if using R for statistics)
+.Rhistory
+.RData
+.Rproj.user
+
+# Keep empty directories with .gitkeep
+!.gitkeep
