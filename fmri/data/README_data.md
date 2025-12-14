@@ -1,163 +1,131 @@
 # fMRI Data Directory
+---
 
-## Overview
+# fMRI Group-Level Analysis of Motion Processing (Dataset D4_V5LOC)
 
-This directory should contain the raw and preprocessed fMRI data for the D4_V5LOC dataset.
+## Project Overview
 
-**IMPORTANT:** Raw fMRI data files are typically very large (several GB per subject) and should **NOT** be committed to GitHub. Use this directory for local storage only.
+This project presents a complete first-level and second-level fMRI analysis pipeline implemented in **SPM**.
+The goal is to identify brain regions involved in **visual motion processing**, with a particular focus on area **V5**, using multiple group-level statistical models.
+
+We compare a **simple group model (one-sample t-test)** with **more complex factorial models** to illustrate how different second-level designs affect statistical inference while relying on the same first-level contrasts.
 
 ---
 
-## Expected Data Structure
+## Dataset Description (Dataset #4: D4_V5LOC)
 
-### Raw data (before preprocessing):
+**Experiment**
+Participants observed **dynamic (moving) dots** while maintaining fixation at the center of the screen.
+Periods of **static dots** served as the implicit baseline condition.
 
-```
-fmri/data/
-├── sub-01/
-│   ├── anat/
-│   │   └── sub-01_T1w.nii            # Structural T1-weighted image
-│   └── func/
-│       ├── sub-01_task-v5loc_bold.nii   # Functional BOLD images
-│       └── sub-01_task-v5loc_events.tsv # Event timing information
-├── sub-02/
-│   ├── anat/
-│   │   └── sub-02_T1w.nii
-│   └── func/
-│       ├── sub-02_task-v5loc_bold.nii
-│       └── sub-02_task-v5loc_events.tsv
-├── sub-03/
-│   └── ...
-└── README_data.md (this file)
-```
+**Experimental Conditions**
 
-### Preprocessed data (after SPM pipeline):
+* Moving dots (task condition)
+* Static dots (baseline)
 
-Preprocessed images will be saved in the subject's functional directory with prefixes indicating the processing steps:
+**Expected Activation**
 
-- `a` = slice-time corrected
-- `r` = realigned (motion corrected)
-- `w` = normalized (warped to MNI space)
-- `s` = smoothed
+* Visual motion–sensitive cortex, primarily **area V5**
 
-Example:
-```
-fmri/data/sub-01/func/
-├── sub-01_task-v5loc_bold.nii           # Original
-├── rsub-01_task-v5loc_bold.nii          # Realigned
-├── wrsub-01_task-v5loc_bold.nii         # Normalized
-├── swrsub-01_task-v5loc_bold.nii        # Smoothed (final preprocessed)
-├── rp_sub-01_task-v5loc_bold.txt        # Motion parameters (6 columns)
-└── meansub-01_task-v5loc_bold.nii       # Mean functional image
-```
+**Dataset Purpose**
+The dataset is designed as a **functional localizer** for motion-sensitive visual regions and is well suited for:
+
+* one-sample group analyses
+* block-wise modeling
+* comparison of different second-level GLM designs 
 
 ---
 
-## Data Acquisition Details
+## Analysis Pipeline
 
-**Scanner:** [e.g., 3T Siemens Prisma]
+### First-Level Analysis (Single Subject)
 
-**Functional (BOLD) imaging parameters:**
-- Sequence: EPI (Echo-Planar Imaging)
-- TR (Repetition Time): [e.g., 2.0 seconds]
-- TE (Echo Time): [e.g., 30 ms]
-- Flip angle: [e.g., 90°]
-- Voxel size: [e.g., 3 × 3 × 3 mm³]
-- Matrix size: [e.g., 64 × 64]
-- Number of slices: [e.g., 35]
-- Slice thickness: [e.g., 3 mm]
-- Number of volumes: [e.g., 240 per run]
+For each subject:
 
-**Anatomical (T1-weighted) imaging parameters:**
-- Sequence: MPRAGE
-- TR: [e.g., 2.3 seconds]
-- TE: [e.g., 2.98 ms]
-- Flip angle: [e.g., 9°]
-- Voxel size: [e.g., 1 × 1 × 1 mm³]
-- Matrix size: [e.g., 256 × 256]
+1. A **voxel-wise GLM** was specified using:
+
+   * Task regressors obtained by convolving block onsets with the **canonical HRF**
+   * Motion parameters as nuisance regressors
+   * High-pass filtering to remove low-frequency drift
+   * AR(1) noise modeling and pre-whitening (SPM default)
+
+2. Subject-level **contrast images (`con_*.nii`)** were computed for:
+
+   * Moving dots > baseline
+
+These contrast images form the input to all group-level analyses.
 
 ---
 
-## Event Timing Format
+### Second-Level (Group-Level) Analyses
 
-The `events.tsv` file should contain three columns (tab-separated):
+Several group-level models were implemented using the same subject-level contrasts:
 
-| onset | duration | trial_type |
-|-------|----------|------------|
-| 0.0   | 20.0     | moving     |
-| 20.0  | 20.0     | static     |
-| 40.0  | 20.0     | moving     |
-| 60.0  | 20.0     | static     |
-| ...   | ...      | ...        |
+#### 1. One-Sample t-Test
 
-- **onset:** Start time of the block in seconds (relative to scan start)
-- **duration:** Length of the block in seconds
-- **trial_type:** Condition name (`moving` or `static`)
+* Tests whether the average contrast value across subjects differs from zero
+* Directly addresses the question:
+
+  > *Is there a consistent group-level activation to moving dots?*
+
+This model provides a clear and interpretable baseline result.
 
 ---
 
-## Data Access
+#### 2. Flexible Factorial Model
 
-**Where to get the data:**
-- [Specify data source, e.g., course server, shared drive, instructor]
-- Path: [e.g., `/course_data/D4_V5LOC/`]
+* Subject treated as a factor
+* Block-wise or condition-specific contrasts entered per subject
+* Allows modeling of:
 
-**Downloading data:**
-```bash
-# Example command (adjust based on actual data source)
-scp -r username@server:/path/to/D4_V5LOC/sub-* fmri/data/
-```
+  * within-subject variance
+  * block-related effects
+  * more complex dependency structures
 
----
-
-## Data Quality Notes
-
-### Motion parameters:
-
-After preprocessing, check motion parameters for each subject:
-
-```matlab
-% In MATLAB/SPM:
-motion_params = load('fmri/data/sub-01/func/rp_sub-01_task-v5loc_bold.txt');
-figure;
-plot(motion_params);
-legend({'x trans', 'y trans', 'z trans', 'x rot', 'y rot', 'z rot'});
-xlabel('Volume');
-ylabel('Movement (mm or radians)');
-title('Motion parameters - sub-01');
-```
-
-**Quality threshold:**
-- Translation: < 3 mm
-- Rotation: < 3 degrees (0.052 radians)
-
-If a subject exceeds these thresholds, consider excluding or applying more aggressive motion correction.
+This model demonstrates how richer designs can be used when the experimental structure justifies them.
 
 ---
 
-## Backup & Version Control
+#### 3. Full Factorial
 
-**Backup strategy:**
-- Keep a copy of raw data in a separate location (external drive, lab server)
-- Preprocessed data can be regenerated from raw data + scripts
-
-**Do NOT commit to GitHub:**
-- `.nii` or `.nii.gz` files (use `.gitignore`)
-- Large data files (> 100 MB)
-
-**What to commit:**
-- Event timing files (`.tsv`) - small text files
-- Documentation (this README)
-- Metadata or summary files
+* Used to illustrate alternative second-level formulations
+* Enables comparison across modeled blocks or conditions
+* Serves a methodological purpose rather than a necessity for this dataset
 
 ---
 
-## Contact
+## Statistical Inference
 
-For questions about data access or quality issues, contact:
-- **Data curator:** [Name, email]
-- **Course instructor:** [Name, email]
+* **T-contrasts** were used to test directional hypotheses (activation and deactivation)
+
+### Multiple Comparisons Correction
+
+Results were examined using:
+
+* uncorrected voxel-level thresholds (for illustration)
+* **Family-Wise Error (FWE) correction**, based on **Random Field Theory (RFT)**, as implemented in SPM
 
 ---
 
-**Last updated:** 2025-11-24
+## Key Findings
+
+* All group-level models consistently revealed activation in **area V5**, confirming its role in motion processing
+* More complex models redistributed variance across regressors but did not contradict the core finding
+* The one-sample t-test provided the most parsimonious and interpretable result for this dataset
+
+---
+
+## Tools and Software
+
+* **SPM12 / SPM25**
+* MATLAB
+* Statistical Parametric Mapping (GLM, contrasts, RFT-based inference)
+
+---
+
+## Notes
+
+This project emphasizes **conceptual clarity of GLM-based fMRI analysis**, rather than optimization for a specific experimental contrast.
+It is intended as both a **scientific analysis** and a **didactic demonstration** of SPM’s first- and second-level modeling framework.
+
+
