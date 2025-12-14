@@ -33,7 +33,6 @@ This document outlines the project schedule with key milestones and deliverables
 **Irina:**
 - [ ] Verify access to fMRI data (D4_V5LOC)
 - [ ] Organize data into BIDS-like structure
-- [ ] Test SPM preprocessing on 1 subject
 - [ ] Document any issues or questions
 
 **Daniil:**
@@ -64,20 +63,7 @@ This document outlines the project schedule with key milestones and deliverables
 
 #### Tasks:
 
-**Irina:**
-- [ ] Preprocess all fMRI subjects in SPM
-  - [ ] Realignment
-  - [ ] Coregistration
-  - [ ] Segmentation
-  - [ ] Normalization
-  - [ ] Smoothing
-- [ ] Check motion parameters for all subjects
-- [ ] Flag subjects with excessive motion (if any)
-- [ ] Save preprocessed data with clear naming convention
-- [ ] Commit preprocessing scripts to GitHub
-
 **Daniil:**
-- [ ] Help Irina with preprocessing if needed
 - [ ] Set up 1st-level GLM batch scripts
 - [ ] Test 1st-level analysis on 2-3 subjects
 - [ ] Verify design matrices and contrasts are correct
@@ -202,7 +188,7 @@ This document outlines the project schedule with key milestones and deliverables
 **All team members:**
 - [ ] Rehearse EEG presentation together
 - [ ] Prepare for questions from instructors
-- [ ] **EEG defense on Dec 17** ✅
+- [ ] **EEG defense on Dec 17** 
 
 #### Deliverables:
 - EEG presentation slides completed
