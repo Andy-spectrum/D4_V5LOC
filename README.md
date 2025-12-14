@@ -1,128 +1,211 @@
+# Neuro Project – D4_V5LOC (fMRI + EEG)
+
+## 1. Project Overview
+
+This repository contains our course project for the fMRI & EEG module.
+
+- **Team:** Dorozhkina Irina, Miloserdov Daniil, Jingtao Xu
+- **Dataset:**
+  - fMRI: **D4_V5LOC** – visual motion localizer (moving vs static dots)
+  - EEG: corresponding EEG dataset from the course (1st-level analysis only)
+- **Goal (fMRI):**
+  - Localize visual motion area **V5/hMT+**
+  - Show **group-level effect of moving dots > static dots**
+  - Implement:
+    - a **simple model**: one-sample t-test at group level
+    - a **more complex model**: one-way ANOVA / flexible factorial (block-wise)
+
+- **Goal (EEG):**
+  - Perform **1st-level EEG analysis** (per subject) using several signal metrics
+    (e.g. ERP amplitudes and/or time–frequency power).
+
+## 2. Course Requirements
+
+From the instructor:
+
+- Each team must work on **both datasets**:
+  - fMRI dataset
+  - EEG dataset
+- **Master students:** work on both **fMRI and EEG**
+- **Bachelor students:** work on **fMRI only**
+- fMRI part: **1st- and 2nd-level analyses**
+- EEG part: **1st-level analyses** only
+- Software:
+  - fMRI: **MATLAB only** (e.g. SPM)
+  - EEG: **MATLAB (EEGLAB/FieldTrip) or Python (MNE)**
+
+Project defenses:
+- fMRI presentation: **15.12**
+- EEG presentation: **17.12**
+
+Each team: **30 minutes per modality**.
+
+## 3. Data & Task Description
+
+### 3.1 fMRI – D4_V5LOC
+
+- **Experiment:** observation of dynamic (moving) dots while fixating on the center of the screen, with static dots in the baseline condition.
+- **Conditions:**
+  - `moving`: dynamic/moving dots blocks
+  - `static`: static dots / baseline blocks
+- **Expected activation:** visual motion area **V5/hMT+** in occipito-temporal cortex.
+
+We will:
+1. Preprocess fMRI data in SPM (MATLAB).
+2. Build subject-level GLMs.
+3. Compute contrasts:
+   - `moving > static`
+   - (optional) block-wise contrasts: `moving_block_k > static_block_k`
+4. Run group-level analyses:
+   - One-sample t-test on `moving > static` contrasts.
+   - Factorial / ANOVA model on block-wise contrasts.
+
+### 3.2 EEG
+
+- Use the course EEG dataset corresponding to the same / similar visual paradigm.
+- Perform 1st-level analysis per subject:
+  - Preprocessing (filtering, artifact rejection, etc.)
+  - Epoching by condition
+  - Baseline correction
+  - Compute ERP and/or time–frequency measures
+  - Extract condition-specific metrics for later group-level summary.
+
+## 4. Methods Plan
+
+### 4.1 fMRI – 1st-level (per subject)
+
+- **Preprocessing (SPM):**
+  - (Optional) Slice timing
+  - Realignment + motion parameters
+  - Coregistration to structural image
+  - Normalization to MNI space
+  - Smoothing (e.g. 6–8 mm FWHM)
+
+- **Simple GLM:**
+  - Regressors:
+    - `moving` (all moving blocks)
+    - `static` (all static blocks)
+  - Nuisance:
+    - 6 motion parameters
+  - Main contrast:
+    - `moving > static`  → contrast vector `[1 -1]`
+
+- **Block-wise GLM (for factorial model):**
+  - Regressors:
+    - `moving_block1`, `moving_block2`, ...
+    - `static_block1`, `static_block2`, ...
+  - Define contrasts for each block:
+    - `moving_block_k > static_block_k` (one contrast per block)
+
+### 4.2 fMRI – 2nd-level (group level)
+
+1. **Simple model: One-sample t-test**
+   - Input: all subjects' `moving > static` contrast images
+   - Output:
+     - Group activation map for moving dots
+     - Check for V5/hMT+ activation
+
+2. **Complex model: factorial / ANOVA**
+   - Use **block-wise contrasts** (`moving_block_k > static_block_k`)
+   - Design: flexible factorial / repeated-measures one-way ANOVA
+     - Factors:
+       - `Subject` (random)
+       - `Block` (fixed, levels = number of blocks)
+   - Tests:
+     - Main effect of block (overall motion effect)
+     - Possible differences between early vs late blocks
+
+### 4.3 EEG – 1st-level
+
+(Details will be expanded in `docs/methods_eeg.md`.)
+
+Preliminary plan:
+- Choose toolbox: **MATLAB (EEGLAB/FieldTrip)** or **Python (MNE)**.
+- Steps:
+  1. Import raw EEG
+  2. Filtering (e.g. 0.1–40 Hz)
+  3. Artifact handling (bad channels, ICA for eye blinks)
+  4. Epoch into conditions (e.g. moving vs static)
+  5. Baseline correction
+  6. Compute:
+     - ERP (time-domain)
+     - and/or time–frequency power (e.g. alpha/beta)
+  7. Extract metrics (mean amplitude / power in predefined time windows and electrodes).
+
+## 5. Repository Structure
+
+See the `fmri/`, `eeg/`, and `docs/` folders for more details:
+
+```text
+fmri/
+  data/          # data description or small samples (no raw big files)
+  scripts/       # MATLAB/SPM scripts for preprocessing and analysis
+  results/       # group maps, figures, tables
+
+eeg/
+  data/
+  scripts/       # EEG analysis scripts (MATLAB or Python)
+  results/
+
+docs/
+  project_overview.md
+  methods_fmri.md
+  methods_eeg.md
+  timeline.md
+  presentation_outline.md
+```
+
+## 6. Team Roles (initial idea)
+
+* **Irina Dorozhkina**
+  * fMRI preprocessing + 1st-level GLM
+  * Help with 2nd-level results & figures
+
+* **Miloserdov Daniil**
+  * fMRI 2nd-level (T-test + factorial)
+  * Statistical reporting, tables, V5 localization
+
+* **Jingtao Xu**
+  * EEG pipeline (toolbox setup, preprocessing, analysis)
+  * Contribute to fMRI interpretation & final presentation
+
+> Roles are flexible and can be adjusted as we go.
+
+## 7. Timeline (draft)
+
+* **Week 1:**
+  * Set up repository, agree on methods, assign tasks.
+* **Week 2:**
+  * fMRI preprocessing finished for all subjects.
+  * EEG preprocessing pipeline set up and tested on 1–2 subjects.
+* **Week 3:**
+  * fMRI 1st-level and 2nd-level (simple t-test) completed.
+  * EEG 1st-level metrics extracted.
+* **Week 4:**
+  * fMRI factorial / ANOVA model finished.
+  * All figures prepared, presentations drafted.
+  * Rehearsal for fMRI (15.12) and EEG (17.12) defenses.
+
+## 8. How to Use This Repository
+
+* Clone:
+  ```bash
+  git clone <repo-url>
+  cd D4_V5LOC
+  ```
+* For fMRI (MATLAB/SPM):
+  * Open MATLAB, add `fmri/scripts/` to path.
+  * Run preprocessing & GLM scripts as described in `docs/methods_fmri.md`.
+* For EEG:
+  * Follow instructions in `docs/methods_eeg.md` to set up environment and run analysis.
+
+## 9. References & Resources
+
+- **SPM:** [https://www.fil.ion.ucl.ac.uk/spm/](https://www.fil.ion.ucl.ac.uk/spm/)
+- **EEGLAB:** [https://sccn.ucsd.edu/eeglab/](https://sccn.ucsd.edu/eeglab/)
+- **FieldTrip:** [https://www.fieldtriptoolbox.org/](https://www.fieldtriptoolbox.org/)
+- **MNE-Python:** [https://mne.tools/](https://mne.tools/)
+
 ---
 
-# fMRI Group-Level Analysis of Motion Processing (Dataset D4_V5LOC)
-
-## Project Overview
-
-This project presents a complete first-level and second-level fMRI analysis pipeline implemented in **SPM**.
-The goal is to identify brain regions involved in **visual motion processing**, with a particular focus on area **V5**, using multiple group-level statistical models.
-
-We compare a **simple group model (one-sample t-test)** with **more complex factorial models** to illustrate how different second-level designs affect statistical inference while relying on the same first-level contrasts.
-
----
-
-## Dataset Description (Dataset #4: D4_V5LOC)
-
-**Experiment**
-Participants observed **dynamic (moving) dots** while maintaining fixation at the center of the screen.
-Periods of **static dots** served as the implicit baseline condition.
-
-**Experimental Conditions**
-
-* Moving dots (task condition)
-* Static dots (baseline)
-
-**Expected Activation**
-
-* Visual motion–sensitive cortex, primarily **area V5/MT**
-
-**Dataset Purpose**
-The dataset is designed as a **functional localizer** for motion-sensitive visual regions and is well suited for:
-
-* one-sample group analyses
-* block-wise modeling
-* comparison of different second-level GLM designs 
-
----
-
-## Analysis Pipeline
-
-### First-Level Analysis (Single Subject)
-
-For each subject:
-
-1. A **voxel-wise GLM** was specified using:
-
-   * Task regressors obtained by convolving block onsets with the **canonical HRF**
-   * Motion parameters as nuisance regressors
-   * High-pass filtering to remove low-frequency drift
-   * AR(1) noise modeling and pre-whitening (SPM default)
-
-2. Subject-level **contrast images (`con_*.nii`)** were computed for:
-
-   * Moving dots > baseline
-
-These contrast images form the input to all group-level analyses.
-
----
-
-### Second-Level (Group-Level) Analyses
-
-Several group-level models were implemented using the same subject-level contrasts:
-
-#### 1. One-Sample t-Test
-
-* Tests whether the average contrast value across subjects differs from zero
-* Directly addresses the question:
-
-  > *Is there a consistent group-level activation to moving dots?*
-
-This model provides a clear and interpretable baseline result.
-
----
-
-#### 2. Flexible Factorial Model
-
-* Subject treated as a factor
-* Block-wise or condition-specific contrasts entered per subject
-* Allows modeling of:
-
-  * within-subject variance
-  * block-related effects
-  * more complex dependency structures
-
-This model demonstrates how richer designs can be used when the experimental structure justifies them.
-
----
-
-#### 3. Full Factorial
-
-* Used to illustrate alternative second-level formulations
-* Enables comparison across modeled blocks or conditions
-* Serves a methodological purpose rather than a necessity for this dataset
-
----
-
-## Statistical Inference
-
-* **T-contrasts** were used to test directional hypotheses (activation and deactivation)
-
-### Multiple Comparisons Correction
-
-Results were examined using:
-
-* uncorrected voxel-level thresholds (for illustration)
-* **Family-Wise Error (FWE) correction**, based on **Random Field Theory (RFT)**, as implemented in SPM
-
----
-
-## Key Findings
-
-* All group-level models consistently revealed activation in **area V5**, confirming its role in motion processing
-* More complex models redistributed variance across regressors but did not contradict the core finding
-* The one-sample t-test provided the most parsimonious and interpretable result for this dataset
-
----
-
-## Tools and Software
-
-* **SPM12 / SPM25**
-* MATLAB
-* Statistical Parametric Mapping (GLM, contrasts, RFT-based inference)
-
----
-
-## Notes
-
-This project emphasizes **conceptual clarity of GLM-based fMRI analysis**, rather than optimization for a specific experimental contrast.
-It is intended as both a **scientific analysis** and a **didactic demonstration** of SPM’s first- and second-level modeling framework.
+**Last updated:** 2025-11-24
