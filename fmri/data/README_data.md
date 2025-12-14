@@ -127,5 +127,7 @@ Results were examined using:
 
 This project emphasizes **conceptual clarity of GLM-based fMRI analysis**, rather than optimization for a specific experimental contrast.
 It is intended as both a **scientific analysis** and a **didactic demonstration** of SPM’s first- and second-level modeling framework.
+Detailed results and figures are available in [results.md](results.md).
+
 
 
